@@ -1,9 +1,9 @@
+use microservice::configuration::{get_configuration, DatabaseSettings};
+use microservice::startup::{get_connection_pool, Application};
+use microservice::telemetry::{get_subscriber, init_subscriber};
 use once_cell::sync::Lazy;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
-use microservice::configuration::{DatabaseSettings, get_configuration};
-use microservice::startup::{Application, get_connection_pool};
-use microservice::telemetry::{get_subscriber, init_subscriber};
 
 // Ensure that the `tracing` stack is only initialised once using `once_cell`
 static TRACING: Lazy<()> = Lazy::new(|| {

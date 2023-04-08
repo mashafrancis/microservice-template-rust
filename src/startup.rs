@@ -3,9 +3,9 @@ use crate::routes::health_check;
 use actix_web::dev::Server;
 use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
-use std::net::TcpListener;
-use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
+use sqlx::PgPool;
+use std::net::TcpListener;
 use tracing_actix_web::TracingLogger;
 
 pub struct Application {
@@ -22,7 +22,12 @@ impl Application {
 		);
 		let listener = TcpListener::bind(address)?;
 		let port = listener.local_addr().unwrap().port();
-		let server = run(listener, configuration.application.base_url, connection_pool).await?;
+		let server = run(
+			listener,
+			configuration.application.base_url,
+			connection_pool,
+		)
+		.await?;
 
 		Ok(Self { port, server })
 	}
@@ -44,7 +49,11 @@ pub fn get_connection_pool(configuration: &DatabaseSettings) -> PgPool {
 
 pub struct ApplicationBaseUrl(pub String);
 
-async fn run(listener: TcpListener, base_url: String, db_pool: PgPool) -> Result<Server, anyhow::Error> {
+async fn run(
+	listener: TcpListener,
+	base_url: String,
+	db_pool: PgPool,
+) -> Result<Server, anyhow::Error> {
 	let base_url = Data::new(ApplicationBaseUrl(base_url));
 	let db_pool = Data::new(db_pool);
 	let server = HttpServer::new(move || {
