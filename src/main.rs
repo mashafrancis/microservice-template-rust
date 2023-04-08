@@ -1,5 +1,7 @@
 use std::fmt::{Debug, Display};
 use tokio::task::JoinError;
+use microservice::configuration::get_configuration;
+use microservice::startup::Application;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

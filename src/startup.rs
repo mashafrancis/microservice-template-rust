@@ -1,8 +1,9 @@
-use crate::routes::health_check;
 use actix_web::dev::Server;
 use actix_web::{web, App, HttpServer};
 use std::net::TcpListener;
 use tracing_actix_web::TracingLogger;
+use crate::configuration::Settings;
+use crate::routes::health_check;
 
 pub struct Application {
 	port: u16,
@@ -10,7 +11,7 @@ pub struct Application {
 }
 
 impl Application {
-	pub async fn build() -> Result<Self, anyhow::Error> {
+	pub async fn build(configuration: Settings) -> Result<Self, anyhow::Error> {
 		let address = format!("{}:{}", " ", 8000);
 		let listener = TcpListener::bind(address)?;
 		let port = listener.local_addr().unwrap().port();
