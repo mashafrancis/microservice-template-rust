@@ -1,5 +1,7 @@
 # microservice-template-rust
 
+[![codecov](https://codecov.io/github/mashafrancis/microservice-template-rust/branch/main/graph/badge.svg?token=8gAxsvhvEp)](https://codecov.io/github/mashafrancis/microservice-template-rust)
+
 A microservice template built in Rust.
 
 ## Technologies Used
