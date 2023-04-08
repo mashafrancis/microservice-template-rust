@@ -13,7 +13,7 @@ where
 // The error root cause is preserved for logging purposes.
 pub fn e400<T: std::fmt::Debug + std::fmt::Debug>(e: T) -> actix_web::Error
 where
-	T: std::fmt::Debug + std::fmt::Debug + 'static,
+	T: std::fmt::Debug + std::fmt::Display + 'static,
 {
 	actix_web::error::ErrorBadRequest(e)
 }
