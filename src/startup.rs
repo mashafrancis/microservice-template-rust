@@ -1,8 +1,8 @@
 use crate::configuration::{DatabaseSettings, Settings};
-use crate::routes::health_check;
+use crate::routes::handler;
 use actix_web::dev::Server;
 use actix_web::web::Data;
-use actix_web::{web, App, HttpServer};
+use actix_web::{App, HttpServer};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 use std::net::TcpListener;
@@ -59,7 +59,7 @@ async fn run(
 	let server = HttpServer::new(move || {
 		App::new()
 			.wrap(TracingLogger::default())
-			.route("/health_check", web::get().to(health_check))
+			.configure(handler::config)
 			.app_data(base_url.clone())
 			.app_data(db_pool.clone())
 	})
