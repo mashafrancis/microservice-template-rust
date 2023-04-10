@@ -4,9 +4,13 @@ use actix_web::dev::Server;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use sqlx::postgres::PgPoolOptions;
-use sqlx::PgPool;
+use sqlx::{PgPool, Pool, Postgres};
 use std::net::TcpListener;
 use tracing_actix_web::TracingLogger;
+
+pub struct AppState {
+	pub(crate) db: Pool<Postgres>,
+}
 
 pub struct Application {
 	port: u16,
@@ -55,7 +59,7 @@ async fn run(
 	db_pool: PgPool,
 ) -> Result<Server, anyhow::Error> {
 	let base_url = Data::new(ApplicationBaseUrl(base_url));
-	let db_pool = Data::new(db_pool);
+	let db_pool = Data::new(AppState { db: db_pool });
 	let server = HttpServer::new(move || {
 		App::new()
 			.wrap(TracingLogger::default())
