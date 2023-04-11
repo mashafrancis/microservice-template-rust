@@ -56,9 +56,11 @@ pub async fn create_user(
 		Ok(user) => {
 			let json_response = json!({ "status": "success", "data": user });
 			HttpResponse::Ok().json(json_response)
-		},
+		}
 		Err(e) => {
-			if e.to_string().contains("duplicate key value violates unique constraint") {
+			if e.to_string()
+				.contains("duplicate key value violates unique constraint")
+			{
 				let json_response = json!({ "status": "error", "message": "User already exists" });
 				return HttpResponse::BadRequest().json(json_response);
 			}
@@ -69,11 +71,35 @@ pub async fn create_user(
 	}
 }
 
+#[get("/users/{id}")]
+pub async fn fetch_user(path: web::Path<uuid::Uuid>, data: web::Data<AppState>) -> impl Responder {
+	let user_id = path.into_inner();
+	let query_result = sqlx::query_as!(
+		UserModel,
+		"SELECT * FROM users WHERE id = $1",
+		user_id,
+	)
+	.fetch_one(&data.db)
+	.await;
+
+	match query_result {
+		Ok(user) => {
+			let json_response = json!({ "status": "success", "data": user });
+			HttpResponse::Ok().json(json_response)
+		}
+		Err(e) => {
+			let json_response = json!({ "status": "error", "message": e.to_string() });
+			HttpResponse::InternalServerError().json(json_response)
+		}
+	}
+}
+
 pub fn config(conf: &mut web::ServiceConfig) {
 	let scope = web::scope("/api")
 		.service(health_check)
 		.service(fetch_users)
-		.service(create_user);
+		.service(create_user)
+		.service(fetch_user);
 
 	conf.service(scope);
 }
