@@ -1,7 +1,7 @@
 use crate::startup::AppState;
 use crate::users::model::UserModel;
 use crate::users::schema::{CreateUserSchema, FilterOptions, UpdateUserSchema};
-use actix_web::{get, patch, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
 use serde_json::json;
 
 #[get("/health_check")]
@@ -140,13 +140,33 @@ pub async fn update_user(
 	}
 }
 
+#[delete("/users/{id}")]
+pub async fn delete_user(path: web::Path<uuid::Uuid>, data: web::Data<AppState>) -> impl Responder {
+	let user_id = path.into_inner();
+	let rows_affected = sqlx::query!("DELETE FROM users WHERE id = $1", user_id,)
+		.execute(&data.db)
+		.await
+		.unwrap()
+		.rows_affected();
+
+	if rows_affected == 0 {
+		let message = format!("User with id {} not found", user_id);
+		let json_response = json!({ "status": "error", "message": message });
+		return HttpResponse::NotFound().json(json_response);
+	}
+
+	let json_response = json!({ "status": "success", "message": "User deleted successfully" });
+	HttpResponse::Ok().json(json_response)
+}
+
 pub fn config(conf: &mut web::ServiceConfig) {
 	let scope = web::scope("/api")
 		.service(health_check)
 		.service(fetch_users)
 		.service(create_user)
 		.service(fetch_user)
-		.service(update_user);
+		.service(update_user)
+		.service(delete_user);
 
 	conf.service(scope);
 }
